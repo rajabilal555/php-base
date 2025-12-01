@@ -22,7 +22,8 @@ jobs:
       contents: read
       packages: write
     env:
-      PHP_VERSION: ${{ github.event.inputs.php_version || '8.4' }}
+      # Default if nothing else provided
+      PHP_VERSION: '8.4'
 
     steps:
       - name: Checkout repository
@@ -40,6 +41,15 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Determine PHP version
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/php-* ]]; then
+            echo "PHP_VERSION=${GITHUB_REF#refs/tags/php-}" >> $GITHUB_ENV
+          elif [[ -n "${{ github.event.inputs.php_version }}" ]]; then
+            echo "PHP_VERSION=${{ github.event.inputs.php_version }}" >> $GITHUB_ENV
+          fi
 
       - name: Build and push
         uses: docker/build-push-action@v4
