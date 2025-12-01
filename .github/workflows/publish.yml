@@ -65,10 +65,10 @@ jobs:
         run: |
           # Create newline separated tags for GHCR and optionally Docker Hub
           echo "TAGS<<EOF" >> $GITHUB_ENV
-          echo "ghcr.io/${{ github.repository_owner }}/php-base:php-${{ env.PHP_VERSION }}" >> $GITHUB_ENV
+          echo "ghcr.io/${{ github.repository_owner }}/php-base:${{ env.PHP_VERSION }}" >> $GITHUB_ENV
           echo "ghcr.io/${{ github.repository_owner }}/php-base:latest" >> $GITHUB_ENV
           if [[ -n "${{ secrets.DOCKERHUB_USERNAME }}" && -n "${{ secrets.DOCKERHUB_TOKEN }}" ]]; then
-            echo "docker.io/${{ secrets.DOCKERHUB_USERNAME }}/php-base:php-${{ env.PHP_VERSION }}" >> $GITHUB_ENV
+            echo "docker.io/${{ secrets.DOCKERHUB_USERNAME }}/php-base:${{ env.PHP_VERSION }}" >> $GITHUB_ENV
             echo "docker.io/${{ secrets.DOCKERHUB_USERNAME }}/php-base:latest" >> $GITHUB_ENV
           fi
           echo "EOF" >> $GITHUB_ENV
@@ -81,7 +81,7 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |
-            ghcr.io/${{ github.repository_owner }}/php-base:php-${{ env.PHP_VERSION }}
+            ghcr.io/${{ github.repository_owner }}/php-base:${{ env.PHP_VERSION }}
             ghcr.io/${{ github.repository_owner }}/php-base:latest
           build-args: |
             PHP_VERSION=${{ env.PHP_VERSION }}
@@ -95,7 +95,7 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |
-            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/php-base:php-${{ env.PHP_VERSION }}
+            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/php-base:${{ env.PHP_VERSION }}
             docker.io/${{ secrets.DOCKERHUB_USERNAME }}/php-base:latest
           build-args: |
             PHP_VERSION=${{ env.PHP_VERSION }}
