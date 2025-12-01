@@ -1,4 +1,4 @@
-ARG PHP_VERSION=${PHP_VERSION:-8.3}
+ARG PHP_VERSION=${PHP_VERSION:-8.4}
 FROM php:${PHP_VERSION}-fpm-alpine AS php-base
 
 # Install system dependencies
@@ -26,3 +26,5 @@ RUN addgroup $NON_ROOT_USER wheel
 
 # Common PHP config
 COPY ./config/php/local.ini /usr/local/etc/php/conf.d/local.ini
+
+# Version metadata: default image version uses PHP ${PHP_VERSION}
