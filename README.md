@@ -35,9 +35,16 @@ Set `SERVER_NAME` (for example `:8000`) if you want a non-privileged port inside
 
 **Recommendation:** use `latest` / `php-8.4` for new work. Pin `php-8.4-fpm` only if you still rely on the old FPM + Supervisor layout.
 
-## Publishing to GHCR
+## Publishing
 
-Images are published to `ghcr.io/<OWNER>/php-base` by GitHub Actions (`.github/workflows/publish.yml`).
+Images are published to **both** GitHub Container Registry and Docker Hub by `.github/workflows/publish.yml`.
+
+| Registry | Image |
+| --- | --- |
+| GHCR | `ghcr.io/<OWNER>/php-base` |
+| Docker Hub | `docker.io/<DOCKERHUB_USERNAME>/php-base` |
+
+Tags: `php-<version>`, `latest` (FrankenPHP), and `php-<version>-fpm` (legacy, on tag releases).
 
 Triggers:
 
@@ -47,7 +54,7 @@ Triggers:
 
 On tag releases, both FrankenPHP (`latest`, `php-<version>`) and legacy FPM (`php-<version>-fpm`) images are built. Manual runs publish FrankenPHP by default; enable **Also publish the legacy PHP-FPM + Caddy image** to include the FPM variant.
 
-### First-time GHCR setup
+### GHCR setup
 
 1. Push this repo to GitHub (or merge the PR).
 2. Run the workflow manually (**Actions → Build and publish Docker image → Run workflow**), or push a tag:
@@ -59,16 +66,16 @@ On tag releases, both FrankenPHP (`latest`, `php-<version>`) and legacy FPM (`ph
 
 3. In GitHub: **Packages** → `php-base` → **Package settings** → set visibility (public if you want open pulls).
 
-The workflow uses `GITHUB_TOKEN` for `ghcr.io`; no extra secrets are required for GHCR.
+GHCR uses `GITHUB_TOKEN`; no extra secrets are required.
 
-## Docker Hub (optional)
+### Docker Hub setup
 
-Set these repository secrets to also push to Docker Hub:
+Set these repository secrets:
 
-- `DOCKERHUB_USERNAME`
-- `DOCKERHUB_TOKEN`
+- `DOCKERHUB_USERNAME` — your Docker Hub username
+- `DOCKERHUB_TOKEN` — a Docker Hub access token
 
-Images are published as `docker.io/<DOCKERHUB_USERNAME>/php-base:php-<version>` and `:latest`.
+The same workflow pushes FrankenPHP images to both registries on every run.
 
 ## Migrating from the FPM image
 
