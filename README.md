@@ -8,7 +8,7 @@
 
 FrankenPHP base image with Composer, common PHP extensions, and `supervisord` + `supercronic` for single-container Laravel apps. See `example/` for a full downstream setup.
 
-Runs as user `app` (UID/GID **1000**).
+Runs as user `app` (UID/GID **1000**). Containers listen on **HTTP port 80 only** by default — TLS terminates at Dokploy, Traefik, or your edge proxy. Set `SERVER_NAME` to a hostname only if you want Caddy to handle HTTPS inside the container.
 
 ## Usage
 
@@ -45,7 +45,7 @@ FrankenPHP env vars (see [official Caddyfile](https://github.com/php/frankenphp/
 
 | Env | Default in example | Purpose |
 | --- | --- | --- |
-| `SERVER_NAME` | `:80` | Listen address (`:80` = HTTP only, no auto-TLS) |
+| `SERVER_NAME` | `:80` | Listen on HTTP only (default for reverse-proxy deploys) |
 | `LARAVEL_PATH` | `/srv/app` | Project root (artisan, app code) |
 | `SERVER_ROOT` | `$LARAVEL_PATH/public` | Web root — set in entrypoint, do not point at project root |
 | `CADDY_GLOBAL_OPTIONS` | — | Global Caddy options (e.g. `debug`) |
