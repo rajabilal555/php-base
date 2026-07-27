@@ -1,88 +1,53 @@
 # php-base
 
-Minimal base image for PHP applications, built on [FrankenPHP](https://frankenphp.dev/) (Caddy + PHP in a single optimized process).
+FrankenPHP base image with Composer, common PHP extensions, and `supervisord` + `supercronic` for single-container Laravel apps. See `example/` for a full downstream setup.
+
+Runs as user `app` (UID/GID **1000**).
 
 ## Usage
 
-Build locally:
-
 ```bash
 docker build -f php-base.Dockerfile --build-arg PHP_VERSION=8.4 -t php-base:php-8.4 .
-```
-
-Pull the published image from GitHub Container Registry:
-
-```bash
-docker pull ghcr.io/rajabilal555/php-base:php-8.4
-# or
 docker pull ghcr.io/rajabilal555/php-base:latest
 ```
 
-FrankenPHP serves HTTP on ports 80 and 443 by default. Mount your app and run:
+Set `SERVER_NAME` (for example `:8000` or your domain) and `SERVER_ROOT` if needed. Default FrankenPHP image uses `/etc/frankenphp/Caddyfile` with the same env vars.
 
 ```bash
-docker run --rm -p 8080:80 -v "$PWD:/app/public" ghcr.io/rajabilal555/php-base:latest
+docker run --rm -p 8080:80 -e SERVER_NAME=:80 -v "$PWD:/app" -w /app ghcr.io/rajabilal555/php-base:latest
 ```
 
-Set `SERVER_NAME` (for example `:8000`) if you want a non-privileged port inside the container.
+## Example app
 
-## Image variants
+Copy `example/` into your Laravel repo as `.deploy/` and adapt the Dockerfile. One supervisor config runs everything:
 
-| Tag | Stack | Notes |
+```
+supervisord
+├── frankenphp   → HTTP
+├── supercronic  → schedule:run
+└── queue:work   → queue worker
+```
+
+FrankenPHP env vars (see [official Caddyfile](https://github.com/php/frankenphp/blob/main/caddy/frankenphp/Caddyfile)):
+
+| Env | Default in example | Purpose |
 | --- | --- | --- |
-| `php-8.4`, `latest` | **FrankenPHP** (default) | Lower memory use; Caddy and PHP in one process |
-| `php-8.4-fpm` | PHP-FPM + Caddy + Supervisor | Legacy stack for apps not yet migrated |
+| `SERVER_NAME` | `:80` | Listen address (`:80` = HTTP only, no auto-TLS) |
+| `LARAVEL_PATH` | `/srv/app` | Project root (artisan, app code) |
+| `SERVER_ROOT` | `$LARAVEL_PATH/public` | Web root — set in entrypoint, do not point at project root |
+| `CADDY_GLOBAL_OPTIONS` | — | Global Caddy options (e.g. `debug`) |
+| `FRANKENPHP_CONFIG` | — | Extra `frankenphp {}` config |
+| `CADDY_SERVER_EXTRA_DIRECTIVES` | — | Inject directives into the site block |
 
-**Recommendation:** use `latest` / `php-8.4` for new work. Pin `php-8.4-fpm` only if you still rely on the old FPM + Supervisor layout.
+## Tags
+
+| Tag | Stack |
+| --- | --- |
+| `php-8.4`, `latest` | FrankenPHP (default) |
+| `php-8.4-fpm` | Legacy PHP-FPM + Caddy |
+
+See [MIGRATION.md](MIGRATION.md) for upgrading existing deployments.
 
 ## Publishing
 
-Images are published to **both** GitHub Container Registry and Docker Hub by `.github/workflows/publish.yml`.
-
-| Registry | Image |
-| --- | --- |
-| GHCR | `ghcr.io/<OWNER>/php-base` |
-| Docker Hub | `docker.io/<DOCKERHUB_USERNAME>/php-base` |
-
-Tags: `php-<version>`, `latest` (FrankenPHP), and `php-<version>-fpm` (legacy, on tag releases).
-
-Triggers:
-
-- Push to `main`
-- Version tags: `v*` or `php-*` (for example `php-8.4`)
-- Manual **workflow dispatch** from the Actions tab
-
-On tag releases, both FrankenPHP (`latest`, `php-<version>`) and legacy FPM (`php-<version>-fpm`) images are built. Manual runs publish FrankenPHP by default; enable **Also publish the legacy PHP-FPM + Caddy image** to include the FPM variant.
-
-### GHCR setup
-
-1. Push this repo to GitHub (or merge the PR).
-2. Run the workflow manually (**Actions → Build and publish Docker image → Run workflow**), or push a tag:
-
-   ```bash
-   git tag php-8.4
-   git push origin php-8.4
-   ```
-
-3. In GitHub: **Packages** → `php-base` → **Package settings** → set visibility (public if you want open pulls).
-
-GHCR uses `GITHUB_TOKEN`; no extra secrets are required.
-
-### Docker Hub setup
-
-Set these repository secrets:
-
-- `DOCKERHUB_USERNAME` — your Docker Hub username
-- `DOCKERHUB_TOKEN` — a Docker Hub access token
-
-The same workflow pushes FrankenPHP images to both registries on every run.
-
-## Migrating from the FPM image
-
-The default image no longer includes Supervisor, standalone Caddy, or `php-fpm`. Downstream Dockerfiles should:
-
-1. Use FrankenPHP as the process manager (remove Supervisor/Caddy/FPM wiring).
-2. Put the web root at `/app/public` (FrankenPHP default) or set `SERVER_ROOT`.
-3. Expose ports `80`, `443`, and `443/udp` instead of a separate FPM socket.
-
-If you need the previous stack temporarily, use `ghcr.io/<OWNER>/php-base:php-8.4-fpm`.
+Images publish to GHCR and Docker Hub on push to `main`, version tags (`php-*`, `v*`), or manual workflow dispatch. See `.github/workflows/publish.yml`.

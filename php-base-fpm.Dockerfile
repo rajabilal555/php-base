@@ -15,9 +15,12 @@ RUN setcap 'cap_net_bind_service=+ep' /usr/local/bin/caddy
 
 COPY --from=composer/composer:2 /usr/bin/composer /usr/local/bin/composer
 
+ARG NON_ROOT_UID=1000
+ARG NON_ROOT_GID=1000
 ARG NON_ROOT_GROUP=app
 ARG NON_ROOT_USER=app
-RUN addgroup -S ${NON_ROOT_GROUP} && adduser -S ${NON_ROOT_USER} -G ${NON_ROOT_GROUP}
+RUN addgroup -g ${NON_ROOT_GID} -S ${NON_ROOT_GROUP} \
+    && adduser -D -u ${NON_ROOT_UID} -G ${NON_ROOT_GROUP} -s /bin/sh ${NON_ROOT_USER}
 RUN addgroup ${NON_ROOT_USER} wheel
 
 COPY ./config/php/local.ini /usr/local/etc/php/conf.d/local.ini

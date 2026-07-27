@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+- Added `supervisord` and `supercronic` to the FrankenPHP base image.
+- Removed `dcron` and `busybox-suid`; use Supercronic instead.
+- Fixed `app` user to UID/GID 1000 for stable volume permissions across PHP upgrades.
+- Expanded `config/php/local.ini` with OPcache, security, session, and realpath cache settings.
+- Updated `example/` for FrankenPHP with a single `supervisor.conf`.
+- Added [MIGRATION.md](MIGRATION.md) for upgrading from the FPM stack.
+
 ## [php-8.4-frankenphp] - 2026-07-26
 
 - **Breaking:** Default image is now based on [FrankenPHP](https://frankenphp.dev/) instead of PHP-FPM + Caddy + Supervisor.
