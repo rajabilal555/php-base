@@ -25,7 +25,9 @@ jobs:
     permissions:
       contents: read
       packages: write
+      actions: write
     env:
+      DEFAULT_PHP_VERSION: '8.4'
       PHP_VERSION: '8.4'
       GHCR_IMAGE: ghcr.io/${{ github.repository_owner }}/php-base
       DOCKERHUB_IMAGE: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/php-base
@@ -75,6 +77,21 @@ jobs:
             echo "publish_fpm=false" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Set image tags
+        id: meta
+        shell: bash
+        run: |
+          TAGS="${{ env.GHCR_IMAGE }}:php-${PHP_VERSION}
+          ${{ env.DOCKERHUB_IMAGE }}:php-${PHP_VERSION}"
+          if [ "${PHP_VERSION}" = "${{ env.DEFAULT_PHP_VERSION }}" ]; then
+            TAGS="${TAGS}
+          ${{ env.GHCR_IMAGE }}:latest
+          ${{ env.DOCKERHUB_IMAGE }}:latest"
+          fi
+          echo "tags<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$TAGS" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
       - name: Build and push FrankenPHP image
         uses: docker/build-push-action@v6
         with:
@@ -82,13 +99,11 @@ jobs:
           file: php-base.Dockerfile
           push: true
           platforms: linux/amd64,linux/arm64
-          tags: |
-            ${{ env.GHCR_IMAGE }}:php-${{ env.PHP_VERSION }}
-            ${{ env.GHCR_IMAGE }}:latest
-            ${{ env.DOCKERHUB_IMAGE }}:php-${{ env.PHP_VERSION }}
-            ${{ env.DOCKERHUB_IMAGE }}:latest
+          tags: ${{ steps.meta.outputs.tags }}
           build-args: |
             PHP_VERSION=${{ env.PHP_VERSION }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Build and push legacy FPM image
         if: steps.publish.outputs.publish_fpm == 'true'
@@ -103,3 +118,5 @@ jobs:
             ${{ env.DOCKERHUB_IMAGE }}:php-${{ env.PHP_VERSION }}-fpm
           build-args: |
             PHP_VERSION=${{ env.PHP_VERSION }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
