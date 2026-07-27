@@ -4,12 +4,37 @@ Guide for Laravel apps currently on the old **PHP-FPM + Caddy + crond** base ima
 
 Reference: [rajabilal555/php-base](https://github.com/rajabilal555/php-base) — see `example/` for the target setup.
 
-## Not ready yet?
+## Already on an old tag?
 
-Pin the legacy base image in your app `Dockerfile`:
+If your `Dockerfile` uses a tag **without** the `php-` prefix — for example:
 
 ```dockerfile
+FROM ghcr.io/rajabilal555/php-base:8.4
+# or
+FROM docker.io/rajabilal555/php-base:8.3
+```
+
+you are still on the **legacy FPM stack**. Those tags were **not** updated to FrankenPHP.
+
+| Old tag | What you get | Where |
+| --- | --- | --- |
+| `8.3` | Legacy PHP-FPM + Caddy | Docker Hub only (frozen) |
+| `8.4` | Legacy PHP-FPM + Caddy | Docker Hub (frozen); GHCR may still have this tag from before the rename |
+
+No action needed unless you want to migrate. Your app keeps working as before.
+
+New tags use the `php-` prefix: `php-8.4` = FrankenPHP, `php-8.4-fpm` = legacy FPM (explicit pin).
+
+## Not ready yet?
+
+Pin the legacy base image in your app `Dockerfile` (pick one):
+
+```dockerfile
+# explicit FPM tag (recommended for new pins)
 FROM ghcr.io/rajabilal555/php-base:php-8.4-fpm
+
+# or keep your existing tag — still FPM, unchanged
+FROM docker.io/rajabilal555/php-base:8.4
 ```
 
 No other changes needed. Rebuild and redeploy in Dokploy as usual.

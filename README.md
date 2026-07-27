@@ -71,6 +71,17 @@ FrankenPHP env vars (see [official Caddyfile](https://github.com/php/frankenphp/
 | `latest` | FrankenPHP | Same as `php-8.4` (only updated when building the default PHP version) |
 | `php-8.4-fpm` | Legacy PHP-FPM + Caddy | Tag releases only |
 
+### Legacy tags (no `php-` prefix)
+
+Before FrankenPHP, images were tagged as `8.3`, `8.4`, etc. — **not** `php-8.4`. Those tags still point at the **old PHP-FPM + Caddy stack** and were **not** republished as FrankenPHP.
+
+| Tag | Stack | Registry |
+| --- | --- | --- |
+| `8.3` | Legacy PHP-FPM + Caddy | Docker Hub (frozen) |
+| `8.4` | Legacy PHP-FPM + Caddy | Docker Hub (frozen); GHCR may also have this tag from before the rename |
+
+If your `Dockerfile` still says `FROM .../php-base:8.4` (or `:8.3`), nothing changed for you — rebuilds keep pulling the same FPM image. To migrate to FrankenPHP, switch to `php-8.4`. To stay on FPM with an explicit tag, use `php-8.4-fpm`.
+
 When the default PHP version moves to 8.5, bump `DEFAULT_PHP_VERSION` in the workflow and the `ARG PHP_VERSION` default in `php-base.Dockerfile` — `latest` will follow.
 
 See [MIGRATION.md](MIGRATION.md) for upgrading existing deployments.
