@@ -38,7 +38,8 @@ Queue worker via supervisor stays the same idea.
 ```dockerfile
 FROM ghcr.io/rajabilal555/php-base:php-8.4
 ```
-And replace Dockerfile with [example/Dockerfile](https://github.com/rajabilal555/php-base/blob/main/example/Dockerfile) keeping any specific things that the application needs only, replace everything else.
+
+Change the `php-8.4` tag when you upgrade PHP. No build-args needed.
 
 **2. Replace `.deploy/config/supervisor.conf`**
 

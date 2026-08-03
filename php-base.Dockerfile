@@ -13,19 +13,15 @@ RUN curl -fsSL -o /usr/local/bin/supercronic \
 
 COPY --from=docker.io/composer/composer:2 /usr/bin/composer /usr/local/bin/composer
 
-ARG NON_ROOT_UID=1000
-ARG NON_ROOT_GID=1000
-ARG NON_ROOT_GROUP=app
-ARG NON_ROOT_USER=app
-RUN addgroup -g ${NON_ROOT_GID} -S ${NON_ROOT_GROUP} \
-    && adduser -D -u ${NON_ROOT_UID} -G ${NON_ROOT_GROUP} -s /bin/sh ${NON_ROOT_USER} \
+RUN addgroup -g 1000 -S app \
+    && adduser -D -u 1000 -G app -s /bin/sh app \
     && setcap CAP_NET_BIND_SERVICE=+eip /usr/local/bin/frankenphp \
-    && chown -R ${NON_ROOT_USER}:${NON_ROOT_GROUP} /config/caddy /data/caddy
+    && chown -R app:app /config/caddy /data/caddy
 
 COPY ./config/php/local.ini /usr/local/etc/php/conf.d/local.ini
 
 WORKDIR /app
 
-USER ${NON_ROOT_USER}
+USER app
 
 EXPOSE 80

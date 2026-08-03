@@ -1,6 +1,6 @@
 # Legacy Caddy + PHP-FPM + Supervisor stack.
 # Published under the *-fpm tags for apps that have not migrated yet.
-ARG PHP_VERSION=${PHP_VERSION:-8.4}
+ARG PHP_VERSION=8.4
 FROM docker.io/library/php:${PHP_VERSION}-fpm-alpine AS php-base
 
 # Install system dependencies
@@ -20,11 +20,9 @@ RUN setcap 'cap_net_bind_service=+ep' /usr/local/bin/caddy
 # Install composer
 COPY --from=docker.io/composer/composer:2 /usr/bin/composer /usr/local/bin/composer
 
-# Add non-root user
-ARG NON_ROOT_GROUP=${NON_ROOT_GROUP:-app}
-ARG NON_ROOT_USER=${NON_ROOT_USER:-app}
-RUN addgroup -S $NON_ROOT_GROUP && adduser -S $NON_ROOT_USER -G $NON_ROOT_GROUP
-RUN addgroup $NON_ROOT_USER wheel
+# Non-root user (UID/GID 1000 — fixed, not configurable)
+RUN addgroup -g 1000 -S app && adduser -D -u 1000 -G app -S app
+RUN addgroup app wheel
 
 # Common PHP config
 COPY ./config/php/local.ini /usr/local/etc/php/conf.d/local.ini

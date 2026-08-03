@@ -8,12 +8,23 @@
 
 FrankenPHP base image with Composer, common PHP extensions, and `supervisord` + `supercronic` for single-container Laravel apps. See `example/` for a full downstream setup.
 
-Runs as user `app` (UID/GID **1000**). Containers listen on **HTTP port 80 only** by default — TLS terminates at Dokploy, Traefik, or your edge proxy. Set `SERVER_NAME` to a hostname only if you want Caddy to handle HTTPS inside the container.
+Runs as user `app` (UID/GID **1000**, fixed). Containers listen on **HTTP port 80 only** by default — TLS terminates at Dokploy, Traefik, or your edge proxy. Set `SERVER_NAME` to a hostname only if you want Caddy to handle HTTPS inside the container.
+
+## Where to edit
+
+| What | Where | Who |
+| --- | --- | --- |
+| **PHP version** (publish this repo) | `DEFAULT_PHP_VERSION` in `.github/workflows/publish.yml` | Maintainers |
+| **PHP version** (local base build) | `ARG PHP_VERSION=8.4` at top of `php-base.Dockerfile` | Rare — keep in sync with workflow |
+| **PHP version** (your Laravel app) | `FROM ...:php-8.4` tag in your app `Dockerfile` | App developers |
+| **App user / UID** | Nowhere — always `app` (1000:1000) | — |
+
+Downstream apps only change the image tag. No build-args, no `.env` for PHP version.
 
 ## Usage
 
 ```bash
-docker build -f php-base.Dockerfile --build-arg PHP_VERSION=8.4 -t php-base:php-8.4 .
+docker build -f php-base.Dockerfile -t php-base:php-8.4 .
 
 # GHCR
 docker pull ghcr.io/rajabilal555/php-base:php-8.4
@@ -60,7 +71,7 @@ FrankenPHP env vars (see [official Caddyfile](https://github.com/php/frankenphp/
 | `latest` | FrankenPHP | Same as `php-8.4` (only updated when building the default PHP version) |
 | `php-8.4-fpm` | Legacy PHP-FPM + Caddy | Tag releases only |
 
-When the default PHP version moves to 8.5, bump `DEFAULT_PHP_VERSION` in the workflow — `latest` will follow.
+When the default PHP version moves to 8.5, bump `DEFAULT_PHP_VERSION` in the workflow and the `ARG PHP_VERSION` default in `php-base.Dockerfile` — `latest` will follow.
 
 See [MIGRATION.md](MIGRATION.md) for upgrading existing deployments.
 
