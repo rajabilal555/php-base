@@ -90,7 +90,7 @@ Push to git → Dokploy rebuilds the image → redeploy.
 
 - **Port:** expose `80` on the container (unchanged).
 - **HTTPS:** terminate at Dokploy's proxy; keep `SERVER_NAME=:80` in the container.
-- **Volumes:** app user is UID **1000**. Existing volume mounts should keep working; if you hit permission errors, `chown` mounted dirs to `1000:1000`.
+- **Volumes:** app user is `app` (UID 1000, exposed as `APP_USER` / `APP_UID` / `APP_GID` in the image). Existing volume mounts should keep working; if you hit permission errors, `chown` mounted dirs to `1000:1000`.
 - **Healthcheck:** optional — see [example/Dockerfile](https://github.com/rajabilal555/php-base/blob/main/example/Dockerfile).
 
 ---

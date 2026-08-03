@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-- Simplified Docker config: hardcoded `app` user (UID/GID 1000), removed `NON_ROOT_*` build-args.
+- Simplified Docker config: `APP_USER` / `APP_UID` / `APP_GID` as image env vars (not build-args).
 - Single PHP version source for CI (`DEFAULT_PHP_VERSION` in workflow); example app uses pinned image tag only.
 - README "Where to edit" table for PHP version and user config.
 

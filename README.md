@@ -8,7 +8,7 @@
 
 FrankenPHP base image with Composer, common PHP extensions, and `supervisord` + `supercronic` for single-container Laravel apps. See `example/` for a full downstream setup.
 
-Runs as user `app` (UID/GID **1000**, fixed). Containers listen on **HTTP port 80 only** by default — TLS terminates at Dokploy, Traefik, or your edge proxy. Set `SERVER_NAME` to a hostname only if you want Caddy to handle HTTPS inside the container.
+Runs as user `app` (UID/GID **1000**, fixed). Set via `APP_USER` / `APP_UID` / `APP_GID` env vars baked into the image — not build-args. Containers listen on **HTTP port 80 only** by default — TLS terminates at Dokploy, Traefik, or your edge proxy. Set `SERVER_NAME` to a hostname only if you want Caddy to handle HTTPS inside the container.
 
 ## Where to edit
 
@@ -17,7 +17,7 @@ Runs as user `app` (UID/GID **1000**, fixed). Containers listen on **HTTP port 8
 | **PHP version** (publish this repo) | `DEFAULT_PHP_VERSION` in `.github/workflows/publish.yml` | Maintainers |
 | **PHP version** (local base build) | `ARG PHP_VERSION=8.4` at top of `php-base.Dockerfile` | Rare — keep in sync with workflow |
 | **PHP version** (your Laravel app) | `FROM ...:php-8.4` tag in your app `Dockerfile` | App developers |
-| **App user / UID** | Nowhere — always `app` (1000:1000) | — |
+| **App user / UID** | `ENV APP_USER` / `APP_UID` / `APP_GID` in base Dockerfiles | Inherited by downstream images — do not override |
 
 Downstream apps only change the image tag. No build-args, no `.env` for PHP version.
 

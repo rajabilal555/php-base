@@ -5,12 +5,12 @@ ENV LARAVEL_PATH=/srv/app
 ENV SERVER_NAME=:80
 WORKDIR $LARAVEL_PATH
 
-# Switch to non-root 'app' user & install app dependencies
+# APP_USER / APP_UID / APP_GID inherited from php-base image
 COPY composer.json composer.lock ./
-RUN chown -R app:app $LARAVEL_PATH
+RUN chown -R ${APP_USER}:${APP_USER} $LARAVEL_PATH
 COPY package.json package-lock.json ./
-RUN chown -R app:app $LARAVEL_PATH
-USER app
+RUN chown -R ${APP_USER}:${APP_USER} $LARAVEL_PATH
+USER ${APP_USER}
 
 # Dev deps only for local image builds. Demo refresh runs outside the container
 ARG APP_ENV=${APP_ENV:-production}
@@ -19,12 +19,12 @@ RUN if [ "$APP_ENV" = "local" ]; then \
     else \
         composer install --prefer-dist --no-scripts --no-dev --no-autoloader --no-interaction; \
     fi
-RUN rm -rf /home/app/.composer
+RUN rm -rf /home/${APP_USER}/.composer
 
 RUN npm install
 
 # Copy app
-COPY --chown=app:app . $LARAVEL_PATH/
+COPY --chown=${APP_USER}:${APP_USER} . $LARAVEL_PATH/
 COPY ./.deploy/config/php/local.ini /usr/local/etc/php/conf.d/local.ini
 
 RUN npm run build

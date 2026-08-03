@@ -3,6 +3,10 @@
 ARG PHP_VERSION=8.4
 FROM docker.io/library/php:${PHP_VERSION}-fpm-alpine AS php-base
 
+ENV APP_USER=app \
+    APP_UID=1000 \
+    APP_GID=1000
+
 # Install system dependencies
 RUN apk add --no-cache dcron busybox-suid libcap curl zip unzip git npm ffmpeg tzdata
 
@@ -20,9 +24,8 @@ RUN setcap 'cap_net_bind_service=+ep' /usr/local/bin/caddy
 # Install composer
 COPY --from=docker.io/composer/composer:2 /usr/bin/composer /usr/local/bin/composer
 
-# Non-root user (UID/GID 1000 — fixed, not configurable)
-RUN addgroup -g 1000 -S app && adduser -D -u 1000 -G app -S app
-RUN addgroup app wheel
+RUN addgroup -g ${APP_GID} -S ${APP_USER} && adduser -D -u ${APP_UID} -G ${APP_USER} -S ${APP_USER}
+RUN addgroup ${APP_USER} wheel
 
 # Common PHP config
 COPY ./config/php/local.ini /usr/local/etc/php/conf.d/local.ini
