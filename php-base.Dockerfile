@@ -2,6 +2,10 @@ ARG PHP_VERSION=8.4
 FROM docker.io/dunglas/frankenphp:1-php${PHP_VERSION}-alpine
 ARG TARGETARCH
 
+ENV APP_USER=app \
+    APP_UID=1000 \
+    APP_GID=1000
+
 RUN apk add --no-cache curl zip unzip git npm ffmpeg tzdata
 
 RUN install-php-extensions intl bcmath gd pdo_mysql pdo_pgsql opcache redis uuid exif pcntl zip
@@ -13,19 +17,11 @@ RUN curl -fsSL -o /usr/local/bin/supercronic \
 
 COPY --from=docker.io/composer/composer:2 /usr/bin/composer /usr/local/bin/composer
 
-ARG NON_ROOT_UID=1000
-ARG NON_ROOT_GID=1000
-ARG NON_ROOT_GROUP=app
-ARG NON_ROOT_USER=app
-RUN addgroup -g ${NON_ROOT_GID} -S ${NON_ROOT_GROUP} \
-    && adduser -D -u ${NON_ROOT_UID} -G ${NON_ROOT_GROUP} -s /bin/sh ${NON_ROOT_USER} \
+RUN addgroup -g ${APP_GID} -S ${APP_USER} \
+    && adduser -D -u ${APP_UID} -G ${APP_USER} -s /bin/sh ${APP_USER} \
     && setcap CAP_NET_BIND_SERVICE=+eip /usr/local/bin/frankenphp \
-    && chown -R ${NON_ROOT_USER}:${NON_ROOT_GROUP} /config/caddy /data/caddy
+    && chown -R ${APP_USER}:${APP_USER} /config/caddy /data/caddy
 
 COPY ./config/php/local.ini /usr/local/etc/php/conf.d/local.ini
 
 WORKDIR /app
-
-USER ${NON_ROOT_USER}
-
-EXPOSE 80

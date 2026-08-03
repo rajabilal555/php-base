@@ -38,7 +38,8 @@ Queue worker via supervisor stays the same idea.
 ```dockerfile
 FROM ghcr.io/rajabilal555/php-base:php-8.4
 ```
-And replace Dockerfile with [example/Dockerfile](https://github.com/rajabilal555/php-base/blob/main/example/Dockerfile) keeping any specific things that the application needs only, replace everything else.
+
+Change the `php-8.4` tag when you upgrade PHP. No build-args needed.
 
 **2. Replace `.deploy/config/supervisor.conf`**
 
@@ -79,6 +80,8 @@ ENV SERVER_NAME=:80
 
 `SERVER_NAME=:80` serves HTTP only inside the container. Dokploy's reverse proxy handles TLS in front — same pattern as before.
 
+Set `USER ${APP_USER}` in your app Dockerfile before `composer` / `npm` and for runtime (see `example/Dockerfile`). Prefer `COPY --chown=${APP_USER}:${APP_USER}` over `COPY` + `RUN chown`.
+
 **7. Rebuild and deploy**
 
 Push to git → Dokploy rebuilds the image → redeploy.
@@ -89,7 +92,7 @@ Push to git → Dokploy rebuilds the image → redeploy.
 
 - **Port:** expose `80` on the container (unchanged).
 - **HTTPS:** terminate at Dokploy's proxy; keep `SERVER_NAME=:80` in the container.
-- **Volumes:** app user is UID **1000**. Existing volume mounts should keep working; if you hit permission errors, `chown` mounted dirs to `1000:1000`.
+- **Volumes:** app user is `app` (UID 1000, exposed as `APP_USER` / `APP_UID` / `APP_GID` in the image). Existing volume mounts should keep working; if you hit permission errors, `chown` mounted dirs to `1000:1000`.
 - **Healthcheck:** optional — see [example/Dockerfile](https://github.com/rajabilal555/php-base/blob/main/example/Dockerfile).
 
 ---

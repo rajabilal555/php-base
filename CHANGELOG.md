@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+- Base image build no longer ends with `USER app` — downstream Dockerfiles can chown without `USER root`; set `USER ${APP_USER}` in app images for runtime.
+- Removed `EXPOSE 80` from base images (FrankenPHP parent already documents port 80; app Dockerfile keeps it).
+- Simplified Docker config: `APP_USER` / `APP_UID` / `APP_GID` as image env vars (not build-args).
+- Single PHP version source for CI (`DEFAULT_PHP_VERSION` in workflow); example app uses pinned image tag only.
+- README "Where to edit" table for PHP version and user config.
+
 ## [php-8.4] - 2026-07-27
 
 - Added `supervisord` and `supercronic` to the FrankenPHP base image.

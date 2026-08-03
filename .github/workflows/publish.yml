@@ -28,7 +28,6 @@ jobs:
       actions: write
     env:
       DEFAULT_PHP_VERSION: '8.4'
-      PHP_VERSION: '8.4'
       GHCR_IMAGE: ghcr.io/${{ github.repository_owner }}/php-base
       DOCKERHUB_IMAGE: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/php-base
 
@@ -63,6 +62,8 @@ jobs:
             echo "PHP_VERSION=${GITHUB_REF#refs/tags/php-}" >> "$GITHUB_ENV"
           elif [[ -n "${{ github.event.inputs.php_version }}" ]]; then
             echo "PHP_VERSION=${{ github.event.inputs.php_version }}" >> "$GITHUB_ENV"
+          else
+            echo "PHP_VERSION=${{ env.DEFAULT_PHP_VERSION }}" >> "$GITHUB_ENV"
           fi
 
       - name: Set publish options
