@@ -27,7 +27,3 @@ RUN groupadd -g ${APP_GID} ${APP_USER} \
 COPY ./config/php/local.ini /usr/local/etc/php/conf.d/local.ini
 
 WORKDIR /app
-
-USER ${APP_USER}
-
-EXPOSE 80

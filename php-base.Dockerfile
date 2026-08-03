@@ -25,7 +25,3 @@ RUN addgroup -g ${APP_GID} -S ${APP_USER} \
 COPY ./config/php/local.ini /usr/local/etc/php/conf.d/local.ini
 
 WORKDIR /app
-
-USER ${APP_USER}
-
-EXPOSE 80

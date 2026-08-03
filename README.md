@@ -8,7 +8,7 @@
 
 FrankenPHP base image with Composer, common PHP extensions, and `supervisord` + `supercronic` for single-container Laravel apps. See `example/` for a full downstream setup.
 
-Runs as user `app` (UID/GID **1000**, fixed). Set via `APP_USER` / `APP_UID` / `APP_GID` env vars baked into the image — not build-args. Containers listen on **HTTP port 80 only** by default — TLS terminates at Dokploy, Traefik, or your edge proxy. Set `SERVER_NAME` to a hostname only if you want Caddy to handle HTTPS inside the container.
+Includes user `app` (UID/GID **1000**, fixed) via `APP_USER` / `APP_UID` / `APP_GID` env vars — not build-args. The base image build ends as **root** so downstream Dockerfiles can `COPY` and `chown` freely; set `USER ${APP_USER}` in your app image before install steps and for runtime (see `example/Dockerfile`). Containers listen on **HTTP port 80 only** by default — TLS terminates at Dokploy, Traefik, or your edge proxy. Set `SERVER_NAME` to a hostname only if you want Caddy to handle HTTPS inside the container.
 
 ## Where to edit
 
@@ -38,7 +38,7 @@ Podman works the same (`podman build ...`). Image names use full `docker.io/...`
 Set `SERVER_NAME` (for example `:8000` or your domain) and `SERVER_ROOT` if needed. Default FrankenPHP image uses `/etc/frankenphp/Caddyfile` with the same env vars.
 
 ```bash
-docker run --rm -p 8080:80 -e SERVER_NAME=:80 -v "$PWD:/app" -w /app ghcr.io/rajabilal555/php-base:latest
+docker run --rm -p 8080:80 -u app -e SERVER_NAME=:80 -v "$PWD:/app" -w /app ghcr.io/rajabilal555/php-base:latest
 ```
 
 ## Example app

@@ -6,10 +6,8 @@ ENV SERVER_NAME=:80
 WORKDIR $LARAVEL_PATH
 
 # APP_USER / APP_UID / APP_GID inherited from php-base image
-COPY composer.json composer.lock ./
-RUN chown -R ${APP_USER}:${APP_USER} $LARAVEL_PATH
-COPY package.json package-lock.json ./
-RUN chown -R ${APP_USER}:${APP_USER} $LARAVEL_PATH
+COPY --chown=${APP_USER}:${APP_USER} composer.json composer.lock ./
+COPY --chown=${APP_USER}:${APP_USER} package.json package-lock.json ./
 USER ${APP_USER}
 
 # Dev deps only for local image builds. Demo refresh runs outside the container

@@ -80,6 +80,8 @@ ENV SERVER_NAME=:80
 
 `SERVER_NAME=:80` serves HTTP only inside the container. Dokploy's reverse proxy handles TLS in front — same pattern as before.
 
+Set `USER ${APP_USER}` in your app Dockerfile before `composer` / `npm` and for runtime (see `example/Dockerfile`). Prefer `COPY --chown=${APP_USER}:${APP_USER}` over `COPY` + `RUN chown`.
+
 **7. Rebuild and deploy**
 
 Push to git → Dokploy rebuilds the image → redeploy.
