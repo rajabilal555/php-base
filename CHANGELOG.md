@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+- Legacy FPM base image: `app` user fixed to UID/GID 1000 (matches FrankenPHP base) for stable volume permissions.
 - Base image build no longer ends with `USER app` — downstream Dockerfiles can chown without `USER root`; set `USER ${APP_USER}` in app images for runtime.
 - Removed `EXPOSE 80` from base images (FrankenPHP parent already documents port 80; app Dockerfile keeps it).
 - Simplified Docker config: `APP_USER` / `APP_UID` / `APP_GID` as image env vars (not build-args).
