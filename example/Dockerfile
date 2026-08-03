@@ -1,4 +1,4 @@
-FROM rajabilal555/php-base:php-8.4 AS app-setup
+FROM ghcr.io/rajabilal555/php-base:php-8.4 AS app-setup
 
 # Set working directory
 ENV LARAVEL_PATH=/srv/app
