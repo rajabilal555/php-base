@@ -15,7 +15,7 @@ Includes user `app` (UID/GID **1000**, fixed) via `APP_USER` / `APP_UID` / `APP_
 | What | Where | Who |
 | --- | --- | --- |
 | **PHP version** (publish this repo) | `DEFAULT_PHP_VERSION` in `.github/workflows/publish.yml` | Maintainers |
-| **PHP version** (local base build) | `ARG PHP_VERSION=8.4` at top of `php-base.Dockerfile` | Rare — keep in sync with workflow |
+| **PHP version** (local base build) | `ARG PHP_VERSION=8.4` at top of `php-base.Dockerfile` / `php-base-debian.Dockerfile` | Rare — keep in sync with workflow |
 | **PHP version** (your Laravel app) | `FROM ...:php-8.4` tag in your app `Dockerfile` | App developers |
 | **App user / UID** | `ENV APP_USER` / `APP_UID` / `APP_GID` in base Dockerfiles | Inherited by downstream images — do not override |
 
@@ -24,13 +24,19 @@ Downstream apps only change the image tag. No build-args, no `.env` for PHP vers
 ## Usage
 
 ```bash
+# Alpine (default)
 docker build -f php-base.Dockerfile -t php-base:php-8.4 .
+
+# Debian / bookworm
+docker build -f php-base-debian.Dockerfile -t php-base:php-8.4-debian .
 
 # GHCR
 docker pull ghcr.io/rajabilal555/php-base:php-8.4
+docker pull ghcr.io/rajabilal555/php-base:php-8.4-debian
 
 # Docker Hub
 docker pull docker.io/rajabilal555/php-base:php-8.4
+docker pull docker.io/rajabilal555/php-base:php-8.4-debian
 ```
 
 Podman works the same (`podman build ...`). Image names use full `docker.io/...` paths so Podman doesn't need short-name alias config.
@@ -67,8 +73,9 @@ FrankenPHP env vars (see [official Caddyfile](https://github.com/php/frankenphp/
 
 | Tag | Stack | Notes |
 | --- | --- | --- |
-| `php-8.4` | FrankenPHP | **Pin this in production** |
-| `latest` | FrankenPHP | Same as `php-8.4` (only updated when building the default PHP version) |
+| `php-8.4` | FrankenPHP (Alpine) | **Default — pin this in production** |
+| `latest` | FrankenPHP (Alpine) | Same as `php-8.4` (only updated when building the default PHP version) |
+| `php-8.4-debian` | FrankenPHP (Debian bookworm) | Same stack as Alpine; use when you need glibc / Debian packages |
 | `php-8.4-fpm` | Legacy PHP-FPM + Caddy | Tag releases only |
 
 ### Legacy tags (no `php-` prefix)

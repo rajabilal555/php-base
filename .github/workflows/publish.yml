@@ -93,7 +93,7 @@ jobs:
           echo "$TAGS" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
 
-      - name: Build and push FrankenPHP image
+      - name: Build and push FrankenPHP Alpine image
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -103,8 +103,23 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           build-args: |
             PHP_VERSION=${{ env.PHP_VERSION }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=frankenphp-alpine
+          cache-to: type=gha,mode=max,scope=frankenphp-alpine
+
+      - name: Build and push FrankenPHP Debian image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: php-base-debian.Dockerfile
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            ${{ env.GHCR_IMAGE }}:php-${{ env.PHP_VERSION }}-debian
+            ${{ env.DOCKERHUB_IMAGE }}:php-${{ env.PHP_VERSION }}-debian
+          build-args: |
+            PHP_VERSION=${{ env.PHP_VERSION }}
+          cache-from: type=gha,scope=frankenphp-debian
+          cache-to: type=gha,mode=max,scope=frankenphp-debian
 
       - name: Build and push legacy FPM image
         if: steps.publish.outputs.publish_fpm == 'true'
@@ -119,5 +134,5 @@ jobs:
             ${{ env.DOCKERHUB_IMAGE }}:php-${{ env.PHP_VERSION }}-fpm
           build-args: |
             PHP_VERSION=${{ env.PHP_VERSION }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=fpm
+          cache-to: type=gha,mode=max,scope=fpm
