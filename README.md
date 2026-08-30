@@ -39,13 +39,17 @@ docker pull docker.io/rajabilal555/php-base:php-8.4
 docker pull docker.io/rajabilal555/php-base:php-8.4-debian
 ```
 
-Podman works the same (`podman build ...`). Image names use full `docker.io/...` paths so Podman doesn't need short-name alias config.
+> [!NOTE]  
+> Podman works the same (`podman build ...`). Image names use full `docker.io/...` paths so Podman doesn't need short-name alias config.
 
 Set `SERVER_NAME` (for example `:8000` or your domain) and `SERVER_ROOT` if needed. Default FrankenPHP image uses `/etc/frankenphp/Caddyfile` with the same env vars.
 
 ```bash
 docker run --rm -p 8080:80 -u app -e SERVER_NAME=:80 -v "$PWD:/app" -w /app ghcr.io/rajabilal555/php-base:latest
 ```
+
+> [!IMPORTANT]  
+> You should probably add a trustProxies to your laravel app.
 
 ## Example app
 
