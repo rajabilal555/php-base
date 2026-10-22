@@ -117,7 +117,27 @@ Push to git → Dokploy rebuilds the image → redeploy.
 
 - **Port:** expose `80` on the container (unchanged).
 - **HTTPS:** terminate at Dokploy's proxy; keep `SERVER_NAME=:80` in the container.
-- **Volumes:** app user is `app` (UID 1000, exposed as `APP_USER` / `APP_UID` / `APP_GID` in the image). Existing volume mounts should keep working; if you hit permission errors, `chown` mounted dirs to `1000:1000`.
+- **Volumes / permission errors after upgrade:** the app user is `app` (UID/GID **1000**). Older images often left writable dirs owned by 82, 101, etc. Fix **once** with Docker — paths match the example app (`LARAVEL_PATH=/srv/app`):
+
+  ```bash
+  # 1. Find the container (Dokploy name, or from docker ps)
+  docker ps -a
+
+  # 2. Fix ownership inside the container (no need to find host bind paths)
+  docker exec -u 0 CONTAINER_NAME \
+    chown -R 1000:1000 /srv/app/storage /srv/app/bootstrap/cache
+
+  # 3. Restart the app in Dokploy (or: docker restart CONTAINER_NAME)
+  ```
+
+  If the container will not stay up long enough for `exec`, reuse its mounts:
+
+  ```bash
+  docker run --rm -u 0 --volumes-from CONTAINER_NAME alpine \
+    chown -R 1000:1000 /srv/app/storage /srv/app/bootstrap/cache
+  ```
+
+  If your app uses a different `LARAVEL_PATH`, swap `/srv/app` for that path.
 - **Healthcheck:** optional — see [example/Dockerfile](https://github.com/rajabilal555/php-base/blob/main/example/Dockerfile).
 
 ---
