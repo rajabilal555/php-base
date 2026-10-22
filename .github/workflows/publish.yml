@@ -132,6 +132,7 @@ jobs:
           tags: |
             ${{ env.GHCR_IMAGE }}:php-${{ env.PHP_VERSION }}-fpm
             ${{ env.DOCKERHUB_IMAGE }}:php-${{ env.PHP_VERSION }}-fpm
+            ${{ env.DOCKERHUB_IMAGE }}:${{ env.PHP_VERSION }}
           build-args: |
             PHP_VERSION=${{ env.PHP_VERSION }}
           cache-from: type=gha,scope=fpm
